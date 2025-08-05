@@ -1,0 +1,58 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "color-palette-manager",
+  "title": "Color Palette Manager",
+  "description": "Color Palette Manager allows you to manage your collection of color palettes directly in Raycast. Create and save your favorite palettes, edit, duplicate, delete, or merge them with ease. Interact with the Color Picker extension to quickly add new colors or generate palettes, and use AI-powered tools to create new color combinations or generate shades based on any color.",
+  "icon": "extension-icon.png",
+  "author": "elibattistoni",
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "save-color-palette",
+      "title": "Save Color Palette",
+      "subtitle": "Create and save a color palette",
+      "description": "Save Color Palette allows you to save a color palette to the Raycast's Local Storage.",
+      "mode": "view"
+    },
+    {
+      "name": "manage-color-palettes",
+      "title": "Manage Color Palettes",
+      "subtitle": "View and manage your saved color palettes",
+      "description": "Manage Color Palettes allows you to view all your saved color palettes, and edit, duplicate, delete and merge them.",
+      "mode": "view"
+    },
+    {
+      "name": "create-colors-with-ai",
+      "title": "Create Colors with AI",
+      "subtitle": "Create a set of colors based on a prompt",
+      "description": "Create Colors with AI allows you to create a set of colors that you can then save as color palette",
+      "mode": "view"
+    },
+    {
+      "name": "command-show-detail",
+      "title": "Command Show Detail",
+      "description": "",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.102.3",
+    "@raycast/utils": "^1.17.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.0.4",
+    "@types/node": "22.13.10",
+    "@types/react": "19.0.10",
+    "eslint": "^9.22.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "prepublishOnly": "echo \"\\n\\nIt seems like you are trying to publish the Raycast extension to npm.\\n\\nIf you did intend to publish it to npm, remove the \\`prepublishOnly\\` script and rerun \\`npm publish\\` again.\\nIf you wanted to publish it to the Raycast Store instead, use \\`npm run publish\\` instead.\\n\\n\" && exit 1",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}
