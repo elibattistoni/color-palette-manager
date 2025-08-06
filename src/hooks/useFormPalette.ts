@@ -1,7 +1,7 @@
 import { Form } from "@raycast/api";
 import { useForm } from "@raycast/utils";
-import { useMemo, useState } from "react";
-import { CLEAR_FORM_VALUES } from "../constants";
+import { useMemo } from "react";
+import { CLEAR_FORM_VALUES, MAX_COLOR_FIELDS } from "../constants";
 import { PaletteFormFields, UseFormColorsObject, UseFormPaletteObject } from "../types";
 import { formValidation } from "../utils/formValidation";
 import { useFormSubmission } from "./useFormSubmission";
@@ -18,11 +18,23 @@ type UseFormPaletteReturn = {
 
 export function useFormPalette({ colorFields, initialValues, isEditing }: UseFormPaletteProps): UseFormPaletteReturn {
   const { submitPalette } = useFormSubmission();
-  const [formValues, setFormValues] = useState<PaletteFormFields>(initialValues);
+
+  // Pre-define all possible color fields (up to MAX_COLOR_FIELDS) for useForm
+  const extendedInitialValues = useMemo(() => {
+    const values: PaletteFormFields = { ...initialValues };
+    // Ensure all possible color fields exist in the initial values
+    for (let i = 1; i <= MAX_COLOR_FIELDS; i++) {
+      const colorKey = `color${i}` as `color${number}`;
+      if (!values[colorKey]) {
+        values[colorKey] = "";
+      }
+    }
+    return values;
+  }, [initialValues]);
 
   const { handleSubmit, itemProps, reset, setValue } = useForm<PaletteFormFields>({
-    initialValues,
-    validation: formValidation(colorFields.count),
+    initialValues: extendedInitialValues,
+    validation: formValidation(MAX_COLOR_FIELDS), // Validate all possible fields
     async onSubmit(values) {
       await submitPalette({
         formValues: {
@@ -39,77 +51,31 @@ export function useFormPalette({ colorFields, initialValues, isEditing }: UseFor
     },
   });
 
-  /// TODO CHANGE??
+  // Extract only the color fields that are currently active (based on colorFields.count)
+  // but limit to MAX_COLOR_FIELDS
+  const activeColorCount = Math.min(colorFields.count, MAX_COLOR_FIELDS);
+  const colors = useMemo(() => {
+    const colorProps: Record<string, Partial<Form.ItemProps<string>> & { id: string }> = {};
 
-  /**
-   * Fallback mechanism for when useForm fails to generate itemProps.
-   *
-   * Issue: After syncing with the main Raycast extensions repo, the useForm hook
-   * from @raycast/utils started returning empty itemProps ({}), which breaks form
-   * field binding and prevents color pre-population from organize-colors/generate-colors.
-   *
-   * Root cause: Likely a breaking change in Raycast API (@raycast/utils v1.19.1)
-   * that changed how useForm generates itemProps, possibly related to configuration
-   * validation or property handling.
-   *
-   * Solution: Detect when itemProps is empty and provide a manual fallback that
-   * creates the essential props (id, value, onChange) needed for form field binding.
-   * This ensures backward compatibility while maintaining full functionality.
-   *
-   * @see https://github.com/raycast/extensions - official examples still use same pattern
-   */
-  const fallbackItemProps = useMemo(() => {
-    const props: Record<
-      string,
-      {
-        id: string;
-        value: string | string[];
-        onChange: ((newValue: string) => void) | ((newValue: string[]) => void);
-      }
-    > = {};
-
-    // Generate props for each field in initialValues
-    Object.keys(initialValues).forEach((key) => {
-      const isKeywordsField = key === "keywords";
-      props[key] = {
-        id: key,
-        value: formValues[key as keyof PaletteFormFields] || (isKeywordsField ? [] : ""),
-        onChange: isKeywordsField
-          ? (newValue: string[]) => {
-              setFormValues((prev) => ({ ...prev, [key]: newValue }));
-            }
-          : (newValue: string) => {
-              setFormValues((prev) => ({ ...prev, [key]: newValue }));
-            },
-      };
-    });
-
-    // Generate props for dynamic color fields based on current colorFields.count
-    for (let i = 1; i <= colorFields.count; i++) {
+    for (let i = 1; i <= activeColorCount; i++) {
       const colorKey = `color${i}` as keyof PaletteFormFields;
-      if (!props[colorKey]) {
-        props[colorKey] = {
-          id: colorKey,
-          value: formValues[colorKey] || "",
-          onChange: (newValue: string) => {
-            setFormValues((prev) => ({ ...prev, [colorKey]: newValue }));
-          },
-        };
+      const itemProp = itemProps[colorKey];
+      if (itemProp) {
+        // Only include color fields (string type), not keywords (string[] type)
+        colorProps[colorKey] = itemProp as Partial<Form.ItemProps<string>> & { id: string };
       }
     }
 
-    return props as ReturnType<typeof useForm<PaletteFormFields>>["itemProps"];
-  }, [formValues, initialValues, colorFields.count]);
-
-  // Use fallback if itemProps is empty
-  const effectiveItemProps = Object.keys(itemProps).length > 0 ? itemProps : fallbackItemProps;
-
-  // Extract only color fields for FormColorsFields component
-  const colors = Object.fromEntries(
-    Object.entries(effectiveItemProps).filter(([key]) => key.startsWith("color")),
-  ) as Record<string, Partial<Form.ItemProps<string>> & { id: string }>;
+    return colorProps;
+  }, [itemProps, activeColorCount]);
 
   return {
-    form: { submit: handleSubmit, items: effectiveItemProps, reset, update: setValue, colors },
+    form: {
+      submit: handleSubmit,
+      items: itemProps,
+      reset,
+      update: setValue,
+      colors,
+    },
   };
 }

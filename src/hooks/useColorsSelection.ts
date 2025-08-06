@@ -5,6 +5,8 @@ type UseSelectionReturn = {
   selection: UseColorsSelectionObject;
 };
 
+/// TODO IMPORTANT CHANGE the fact that we allow only max 15 colors in a palette
+
 /**
  * Manages multi-item selection state with ID-based tracking.
  */

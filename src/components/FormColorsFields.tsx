@@ -1,5 +1,6 @@
 import { Form } from "@raycast/api";
 import { useEffect, useRef } from "react";
+import { MAX_COLOR_FIELDS } from "../constants";
 import { FormColorItems, PaletteFormFields } from "../types";
 
 interface FormColorsFieldsProps {
@@ -44,7 +45,7 @@ export function FormColorsFields({ data, form, focus }: FormColorsFieldsProps) {
       <Form.Separator />
       {Array.from({ length: data.colorCount }, (_, index) => {
         const colorKey = `color${index + 1}` as keyof PaletteFormFields;
-        const isRequired = index === 0; // First color field is required
+        const isFirstColor = index === 0; // First color field is required
         const focusHandlers = focus.create(colorKey);
 
         return (
@@ -54,7 +55,8 @@ export function FormColorsFields({ data, form, focus }: FormColorsFieldsProps) {
             ref={(el: unknown) => {
               fieldRefs.current[colorKey] = el;
             }}
-            title={`${index + 1}. Color${isRequired ? "*" : ""}`}
+            title={`${index + 1}. Color${isFirstColor ? "*" : ""}`}
+            info={isFirstColor ? `Minimum: 1 Color. Maximum: ${MAX_COLOR_FIELDS} Colors` : ""}
             placeholder="e.g., #FF5733, #F57, #1E90FF"
             onFocus={focusHandlers.onFocus}
             onBlur={focusHandlers.onBlur}

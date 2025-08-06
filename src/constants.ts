@@ -14,6 +14,10 @@ export const NAME_FIELD_MAXLENGTH = 30;
 
 export const DESCRIPTION_FIELD_MAXLENGTH = 200;
 
+export const MAX_COLOR_FIELDS = 15;
+
+export const DEFAULT_COLOR_FIELDS = 10;
+
 export const DEFAULT_EDIT_ID = undefined;
 
 export const CLEAR_FORM_VALUES: PaletteFormFields = {
