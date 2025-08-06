@@ -26,13 +26,45 @@
       "title": "Create Colors with AI",
       "subtitle": "Create a set of colors based on a prompt",
       "description": "Create Colors with AI allows you to create a set of colors that you can then save as color palette",
-      "mode": "view"
-    },
-    {
-      "name": "command-show-detail",
-      "title": "Command Show Detail",
-      "description": "",
-      "mode": "view"
+      "mode": "view",
+      "arguments": [
+        {
+          "name": "prompt",
+          "placeholder": "Prompt*",
+          "type": "text",
+          "required": true
+        },
+        {
+          "name": "totalColors",
+          "placeholder": "Total Colors",
+          "type": "text",
+          "required": false
+        },
+        {
+          "name": "creativity",
+          "placeholder": "Creativity",
+          "type": "dropdown",
+          "data": [
+            {
+              "title": "Low",
+              "value": "low"
+            },
+            {
+              "title": "Medium",
+              "value": "medium"
+            },
+            {
+              "title": "High",
+              "value": "high"
+            },
+            {
+              "title": "Maximum",
+              "value": "maximum"
+            }
+          ],
+          "required": false
+        }
+      ]
     }
   ],
   "dependencies": {

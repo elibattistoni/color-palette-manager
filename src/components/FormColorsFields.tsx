@@ -1,6 +1,6 @@
 import { Form } from "@raycast/api";
 import { useEffect, useRef } from "react";
-import { PaletteFormFields } from "../types";
+import { FormColorItems, PaletteFormFields } from "../types";
 
 interface FormColorsFieldsProps {
   data: {
@@ -10,7 +10,7 @@ interface FormColorsFieldsProps {
   /** Form integration */
   form: {
     /** Form item properties for color fields specifically */
-    colorProps: Record<string, Partial<Form.ItemProps<string>> & { id: string }>;
+    colors: FormColorItems;
   };
   /** Focus management */
   focus: {
@@ -50,7 +50,7 @@ export function FormColorsFields({ data, form, focus }: FormColorsFieldsProps) {
         return (
           <Form.TextField
             key={index}
-            {...(form.colorProps[colorKey] as Partial<Form.ItemProps<string>> & { id: string })}
+            {...(form.colors[colorKey] as Partial<Form.ItemProps<string>> & { id: string })}
             ref={(el: unknown) => {
               fieldRefs.current[colorKey] = el;
             }}

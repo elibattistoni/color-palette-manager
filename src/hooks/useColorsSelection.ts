@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ColorItem, UseColorsSelectionObject } from "../types";
 
-/// TODO this hook is not used at the moment
 type UseSelectionReturn = {
   selection: UseColorsSelectionObject;
 };

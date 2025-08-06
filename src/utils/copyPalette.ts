@@ -122,4 +122,3 @@ export function copyPalette(palette: SavedPalette, format: CopyPaletteFormat): s
       throw new Error(`Unsupported copy format: ${format}`);
   }
 }
-

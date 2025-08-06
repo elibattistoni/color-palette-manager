@@ -1,6 +1,12 @@
-import { SetStateAction } from "react";
 import { CLEAR_FORM_VALUES } from "../constants";
-import { PaletteFormFields, UpdateKeywordsPromiseResult, UseFormActionsObject, UseFormColorsObject } from "../types";
+import {
+  PaletteFormFields,
+  UseFormActionsObject,
+  UseFormColorsObject,
+  UseFormFocusObject,
+  UseFormKeywordsObject,
+  UseFormPaletteObject,
+} from "../types";
 
 type UseFormActionsReturn = {
   formActions: UseFormActionsObject;
@@ -12,20 +18,21 @@ type UseFormActionsReturn = {
  */
 export function useFormActions({
   colorFields,
-  updateForm,
-  resetForm,
-  setFocus,
-  updateKeywords,
+  form,
+  focus,
+  keywords,
 }: {
   colorFields: UseFormColorsObject;
-  updateForm: <K extends keyof PaletteFormFields>(id: K, value: SetStateAction<PaletteFormFields[K]>) => void;
-  resetForm: (values: PaletteFormFields) => void;
-  setFocus: (fieldId: string) => void;
-  updateKeywords: (keywordsText: string) => Promise<UpdateKeywordsPromiseResult>;
+  form: UseFormPaletteObject;
+  focus: UseFormFocusObject;
+  keywords: UseFormKeywordsObject;
 }): UseFormActionsReturn {
+  /**
+   * Clears the form and resets to initial state.
+   */
   const clear = () => {
     colorFields.resetColors();
-    resetForm(CLEAR_FORM_VALUES);
+    form.reset(CLEAR_FORM_VALUES);
   };
 
   /**
@@ -40,7 +47,7 @@ export function useFormActions({
 
     // Focus on the newly added color field with a delay to ensure DOM is updated
     setTimeout(() => {
-      setFocus(newColorFieldId);
+      focus.set(newColorFieldId);
     }, 50); // Sufficient delay for state update and DOM rendering
   };
 
@@ -51,32 +58,40 @@ export function useFormActions({
     if (colorFields.count > 1) {
       // Clear the value of the last color field before removing it
       const lastColorField = `color${colorFields.count}` as keyof PaletteFormFields;
-      updateForm(lastColorField, "");
+      form.update(lastColorField, "");
 
       // Remove the color field from the UI
       colorFields.removeColor();
 
       // Focus on the new last color field after removal
       const newLastColorField = `color${colorFields.count - 1}`;
-      setFocus(newLastColorField);
+      focus.set(newLastColorField);
     }
   };
 
   /**
    * Handles keyword input parsing and form state updates.
    */
-  const updateFormKeywords = async (keywordsText: string) => {
-    const result = await updateKeywords(keywordsText);
-    updateForm("keywords", (prev: string[]) => [...prev, ...result.validKeywords]);
+  const updateKeywords = async (keywordsText: string) => {
+    const result = await keywords.update(keywordsText);
+    form.update("keywords", (prev: string[]) => [...prev, ...result.validKeywords]);
     return result;
   };
+
+  const getPreview = () => ({
+    // create a new array with only the color values (filter out undefined)
+    colors: Object.values(form.colors)
+      .map((item) => item.value)
+      .filter((value): value is string => typeof value === "string" && value.length > 0),
+  });
 
   return {
     formActions: {
       clear,
       addColor,
       removeColor,
-      updateKeywords: updateFormKeywords,
+      updateKeywords,
+      getPreview,
     },
   };
 }

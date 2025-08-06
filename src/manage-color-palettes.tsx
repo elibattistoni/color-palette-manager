@@ -17,7 +17,7 @@ const createMarkdown = (palette: SavedPalette) => {
 `;
 };
 
-export default function Command() {
+export default function ManageColorPalettes() {
   const { colorPalettes, setColorPalettes, isLoading } = useColorPalettes();
   const { paletteActions } = usePaletteActions(colorPalettes, setColorPalettes);
   const { setSearchText, filteredPalettes } = useSearchPalette(colorPalettes);

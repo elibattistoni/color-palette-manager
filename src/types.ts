@@ -1,4 +1,6 @@
-import { LaunchProps } from "@raycast/api";
+import { Form, LaunchProps } from "@raycast/api";
+import { useForm } from "@raycast/utils";
+import { SetStateAction } from "react";
 
 export type ColorItem = {
   id: string;
@@ -22,6 +24,7 @@ export type UseFormActionsObject = {
   addColor: () => void;
   removeColor: () => void;
   updateKeywords: (keywordsText: string) => Promise<UpdateKeywordsPromiseResult>;
+  getPreview: () => { colors: string[] };
 };
 
 export type UseFormFocusObject = {
@@ -44,7 +47,6 @@ export type PaletteFormFields = {
 
 export interface SavePaletteFormProps extends LaunchProps {
   launchContext?: {
-    /// ELISA TODO USE THIS if you want to implement automatic filling of colors base e.g. on AI
     selectedColors?: ColorItem[];
     text?: string;
   };
@@ -75,7 +77,7 @@ export type ManagePaletteActions = {
   delete: (paletteId: string, paletteName: string) => Promise<void>;
   createEdit: (palette: SavedPalette) => PaletteFormFields;
   duplicate: (palette: SavedPalette) => Promise<void>;
-  // TODO merge
+  /// TODO merge
 };
 
 export type UseColorsSelectionObject = {
@@ -93,4 +95,14 @@ export type UseColorsSelectionObject = {
   helpers: {
     getIsItemSelected: (item: ColorItem) => boolean;
   };
+};
+
+export type FormColorItems = Record<string, Partial<Form.ItemProps<string>> & { id: string }>;
+
+export type UseFormPaletteObject = {
+  submit: (values: PaletteFormFields) => boolean | void | Promise<boolean | void>;
+  items: ReturnType<typeof useForm<PaletteFormFields>>["itemProps"];
+  reset: (values: PaletteFormFields) => void;
+  update: <K extends keyof PaletteFormFields>(id: K, value: SetStateAction<PaletteFormFields[K]>) => void;
+  colors: FormColorItems;
 };

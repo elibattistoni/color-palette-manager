@@ -1,7 +1,8 @@
+import { Form } from "@raycast/api";
 import { useForm } from "@raycast/utils";
-import { SetStateAction, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { CLEAR_FORM_VALUES } from "../constants";
-import { PaletteFormFields, UseFormColorsObject } from "../types";
+import { PaletteFormFields, UseFormColorsObject, UseFormPaletteObject } from "../types";
 import { formValidation } from "../utils/formValidation";
 import { useFormSubmission } from "./useFormSubmission";
 
@@ -12,12 +13,7 @@ type UseFormPaletteProps = {
 };
 
 type UseFormPaletteReturn = {
-  form: {
-    submit: (values: PaletteFormFields) => boolean | void | Promise<boolean | void>;
-    items: ReturnType<typeof useForm<PaletteFormFields>>["itemProps"];
-    reset: (values: PaletteFormFields) => void;
-    update: <K extends keyof PaletteFormFields>(id: K, value: SetStateAction<PaletteFormFields[K]>) => void;
-  };
+  form: UseFormPaletteObject;
 };
 
 export function useFormPalette({ colorFields, initialValues, isEditing }: UseFormPaletteProps): UseFormPaletteReturn {
@@ -42,6 +38,8 @@ export function useFormPalette({ colorFields, initialValues, isEditing }: UseFor
       });
     },
   });
+
+  /// TODO CHANGE??
 
   /**
    * Fallback mechanism for when useForm fails to generate itemProps.
@@ -106,7 +104,12 @@ export function useFormPalette({ colorFields, initialValues, isEditing }: UseFor
   // Use fallback if itemProps is empty
   const effectiveItemProps = Object.keys(itemProps).length > 0 ? itemProps : fallbackItemProps;
 
+  // Extract only color fields for FormColorsFields component
+  const colors = Object.fromEntries(
+    Object.entries(effectiveItemProps).filter(([key]) => key.startsWith("color")),
+  ) as Record<string, Partial<Form.ItemProps<string>> & { id: string }>;
+
   return {
-    form: { submit: handleSubmit, items: effectiveItemProps, reset, update: setValue },
+    form: { submit: handleSubmit, items: effectiveItemProps, reset, update: setValue, colors },
   };
 }
