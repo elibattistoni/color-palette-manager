@@ -3,6 +3,7 @@ import SaveColorPaletteCommand from "../save-color-palette";
 import { CopyPaletteFormat, ManagePaletteActions, SavedPalette } from "../types";
 import { copyPalette } from "../utils/copyPalette";
 import { isValidHexColor } from "../utils/isValidHexColor";
+import { ColorPalettePreview } from "./ColorPalettePreview";
 
 interface ManagePalettesActionsProps {
   palette: SavedPalette;
@@ -62,6 +63,13 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
         url={generateCoolorsUrl(palette.colors)}
         icon={Icon.Globe}
         shortcut={{ modifiers: ["cmd"], key: "o" }}
+      />
+
+      <Action.Push
+        icon={Icon.Swatch}
+        title="Preview Palette"
+        target={<ColorPalettePreview colors={palette.colors} />}
+        shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
       />
 
       <Action.Push

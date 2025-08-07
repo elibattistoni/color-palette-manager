@@ -1,4 +1,4 @@
-import { Action, ActionPanel } from "@raycast/api";
+import { Action, ActionPanel, Icon } from "@raycast/api";
 import { PaletteFormFields, UseFormActionsObject } from "../types";
 import { ColorPalettePreview } from "./ColorPalettePreview";
 
@@ -11,15 +11,22 @@ interface SavePaletteActionsProps {
 export function SavePaletteActions({ handleSubmit, formActions, colorCount }: SavePaletteActionsProps) {
   return (
     <ActionPanel>
-      <Action.SubmitForm onSubmit={handleSubmit} />
+      <Action.SubmitForm icon={Icon.Check} onSubmit={handleSubmit} />
       <Action.Push
+        icon={Icon.Swatch}
         title="Preview Palette"
         target={<ColorPalettePreview colors={formActions.getPreview().colors} />}
         shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
       />
-      <Action title="Add New Color Field" onAction={formActions.addColor} shortcut={{ modifiers: ["cmd"], key: "n" }} />
+      <Action
+        icon={Icon.PlusCircle}
+        title="Add New Color Field"
+        onAction={formActions.addColor}
+        shortcut={{ modifiers: ["cmd"], key: "n" }}
+      />
       {colorCount > 1 && (
         <Action
+          icon={Icon.MinusCircle}
           title="Remove Last Color"
           onAction={formActions.removeColor}
           shortcut={{ modifiers: ["cmd"], key: "backspace" }}
@@ -28,7 +35,12 @@ export function SavePaletteActions({ handleSubmit, formActions, colorCount }: Sa
       {/* 
       /// TODO add an action for each color to remove that specific color ??
       */}
-      <Action title="Clear Form" onAction={formActions.clear} shortcut={{ modifiers: ["cmd", "shift"], key: "r" }} />
+      <Action
+        icon={Icon.Wand}
+        title="Clear Form"
+        onAction={formActions.clear}
+        shortcut={{ modifiers: ["cmd", "shift"], key: "r" }}
+      />
     </ActionPanel>
   );
 }

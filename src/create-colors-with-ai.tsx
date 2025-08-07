@@ -13,7 +13,7 @@ type GenerateColorsActionsProps = {
 export default function CreateColorsWithAi(props: LaunchProps<{ arguments: Arguments.CreateColorsWithAi }>) {
   const { prompt, creativity, totalColors } = props.arguments;
 
-  const { isLoading, colorItems, title, description } = useAIcolors({
+  const { isLoading, colorItems, title, description, error } = useAIcolors({
     creativity,
     totalColors,
     prompt,
@@ -27,7 +27,7 @@ export default function CreateColorsWithAi(props: LaunchProps<{ arguments: Argum
         <Grid.EmptyView
           icon={Icon.EyeDisabled}
           title="The AI could not create the colors."
-          description="Please try again with a different prompt or creativity level."
+          description={error ? error : "Please try again with a different prompt or creativity level."}
         />
       ) : (
         colorItems.map((colorItem) => {

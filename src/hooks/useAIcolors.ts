@@ -26,6 +26,7 @@ type UseAIcolorsReturn = {
 export function useAIcolors({ creativity, totalColors, prompt }: UseAIcolorsProps): UseAIcolorsReturn {
   const [parsedTotalColors, setParsedTotalColors] = useState<number>(DEFAULT_COLOR_FIELDS);
   const [hasShownLimitToast, setHasShownLimitToast] = useState(false);
+  const [isLimitToastActive, setIsLimitToastActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const parsedCreativity = creativity && String(creativity).trim() !== "" ? creativity : "medium";
@@ -41,11 +42,18 @@ export function useAIcolors({ creativity, totalColors, prompt }: UseAIcolorsProp
     setParsedTotalColors(finalColors);
 
     if (requestedColors > MAX_COLOR_FIELDS && !hasShownLimitToast) {
+      setIsLimitToastActive(true);
       showToast({
         title: `Max ${MAX_COLOR_FIELDS} colors allowed.`,
         message: `Creating ${MAX_COLOR_FIELDS} colors instead.`,
+        style: Toast.Style.Animated,
       });
       setHasShownLimitToast(true);
+
+      // Keep the limit toast active for 5 seconds before allowing other toasts
+      setTimeout(() => {
+        setIsLimitToastActive(false);
+      }, 5000);
     }
   }, [totalColors, hasShownLimitToast]);
 
@@ -96,21 +104,22 @@ ${NAME_FIELD_MAXLENGTH} characters.`,
 
   const isLoading = isLoadingJsonColors || isLoadingDescription || isLoadingTitle;
 
-  // Handle errors
+  // Handle errors - only show if limit toast is not active
   useEffect(() => {
-    if (jsonColorsError || descriptionError || titleError) {
+    if ((jsonColorsError || descriptionError || titleError) && !isLimitToastActive) {
       const errorMessage = "Failed to generate colors. Please try again.";
-      setError(errorMessage);
+      setError(String(jsonColorsError || descriptionError || titleError) || errorMessage);
       showToast({
-        title: "Generation failed",
-        message: "Please try again with a different prompt.",
+        title: "Color Creation Failed",
         style: Toast.Style.Failure,
       });
     }
-  }, [jsonColorsError, descriptionError, titleError]);
+  }, [jsonColorsError, descriptionError, titleError, isLimitToastActive]);
 
-  // Show loading/success toast
+  // Show loading/success toast - only if limit toast is not active
   useEffect(() => {
+    if (isLimitToastActive) return; // Don't show other toasts while limit toast is active
+
     if (isLoading) {
       const loadingMessages = [];
       if (isLoadingJsonColors) loadingMessages.push("colors");
@@ -138,6 +147,7 @@ ${NAME_FIELD_MAXLENGTH} characters.`,
     isLoadingJsonColors,
     isLoadingDescription,
     isLoadingTitle,
+    isLimitToastActive,
   ]);
 
   // Parse colors safely
