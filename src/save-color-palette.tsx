@@ -11,6 +11,10 @@ import { useFormPalette } from "./hooks/useFormPalette";
 import { useFormSetup } from "./hooks/useFormSetup";
 import { SavePaletteFormProps } from "./types";
 
+/// TODO: implement remove specific color field, not just the last one
+/// TODO: merge functionality?
+/// TODO check npm run lint: extension icon too big?
+
 export default function SaveColorPalette(props: SavePaletteFormProps) {
   const { draftValues, launchContext = {} } = props;
 

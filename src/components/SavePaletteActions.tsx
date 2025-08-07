@@ -28,13 +28,18 @@ export function SavePaletteActions({ handleSubmit, formActions, colorCount }: Sa
         <Action
           icon={Icon.MinusCircle}
           title="Remove Last Color"
+          onAction={formActions.removeLastColor}
+          shortcut={{ modifiers: ["cmd", "shift"], key: "backspace" }}
+        />
+      )}
+      {colorCount > 1 && (
+        <Action
+          icon={Icon.MinusCircle}
+          title="Remove Active Color"
           onAction={formActions.removeColor}
           shortcut={{ modifiers: ["cmd"], key: "backspace" }}
         />
       )}
-      {/* 
-      /// TODO add an action for each color to remove that specific color ??
-      */}
       <Action
         icon={Icon.Wand}
         title="Clear Form"
