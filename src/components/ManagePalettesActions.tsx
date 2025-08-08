@@ -1,8 +1,6 @@
 import { Action, ActionPanel, Icon, LaunchType } from "@raycast/api";
-import { COPY_FORMATS } from "../constants";
 import SaveColorPaletteCommand from "../save-color-palette";
 import { ManagePaletteActions, SavedPalette } from "../types";
-import { copyPalette } from "../utils/copyPalette";
 import { isValidHexColor } from "../utils/isValidHexColor";
 import { PalettePreview } from "./PalettePreview";
 
@@ -28,6 +26,7 @@ const generateCoolorsUrl = (colors: string[]): string => {
 };
 
 export function ManagePalettesActions({ palette, paletteActions }: ManagePalettesActionsProps) {
+  const coolorsUrl = generateCoolorsUrl(palette.colors);
   return (
     <ActionPanel>
       <Action.Push
@@ -35,32 +34,6 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
         title="Preview Palette"
         target={<PalettePreview palette={palette} />}
         shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
-      />
-
-      <ActionPanel.Submenu
-        title="Copy Palette Colors"
-        icon={Icon.CopyClipboard}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
-      >
-        {COPY_FORMATS.map(({ format, title, icon }) => (
-          <Action.CopyToClipboard key={format} title={title} content={copyPalette(palette, format)} icon={icon} />
-        ))}
-        <ActionPanel.Section title="Copy Individual Colors">
-          {palette.colors.map((color, idx) => (
-            <Action.CopyToClipboard
-              key={`${color}-${idx}`}
-              title={`Copy Color ${idx + 1} - ${color}`}
-              content={color}
-            />
-          ))}
-        </ActionPanel.Section>
-      </ActionPanel.Submenu>
-
-      <Action.OpenInBrowser
-        title="Open in Coolors"
-        url={generateCoolorsUrl(palette.colors)}
-        icon={Icon.Globe}
-        shortcut={{ modifiers: ["cmd"], key: "o" }}
       />
 
       <Action.Push
@@ -81,6 +54,13 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
         onAction={() => paletteActions.duplicate(palette)}
         icon={Icon.Duplicate}
         shortcut={{ modifiers: ["cmd"], key: "d" }}
+      />
+
+      <Action.CopyToClipboard
+        title="Copy link to coolors.co"
+        content={coolorsUrl}
+        icon={Icon.Repeat}
+        shortcut={{ modifiers: ["cmd", "shift"], key: "," }}
       />
 
       <Action

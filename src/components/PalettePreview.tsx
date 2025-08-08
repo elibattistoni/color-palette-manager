@@ -9,22 +9,7 @@ interface PalettePreviewProps {
 
 export function PalettePreview({ palette }: PalettePreviewProps) {
   return (
-    <Grid
-      navigationTitle="Color Palette Preview"
-      actions={
-        <ActionPanel>
-          <ActionPanel.Submenu
-            title="Copy Palette Colors"
-            icon={Icon.CopyClipboard}
-            shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
-          >
-            {COPY_FORMATS.map(({ format, title, icon }) => (
-              <Action.CopyToClipboard key={format} title={title} content={copyPalette(palette, format)} icon={icon} />
-            ))}
-          </ActionPanel.Submenu>
-        </ActionPanel>
-      }
-    >
+    <Grid navigationTitle="Color Palette Preview">
       {palette.colors.map((color, index) => (
         <Grid.Item
           key={`${color}-${index}`}
@@ -34,6 +19,20 @@ export function PalettePreview({ palette }: PalettePreviewProps) {
           actions={
             <ActionPanel>
               <Action.CopyToClipboard title={`Copy Color ${index + 1} - ${color}`} content={color} />
+              <ActionPanel.Submenu
+                title="Copy Palette Colors"
+                icon={Icon.CopyClipboard}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+              >
+                {COPY_FORMATS.map(({ format, title, icon }) => (
+                  <Action.CopyToClipboard
+                    key={format}
+                    title={title}
+                    content={copyPalette(palette, format)}
+                    icon={icon}
+                  />
+                ))}
+              </ActionPanel.Submenu>
             </ActionPanel>
           }
         />
