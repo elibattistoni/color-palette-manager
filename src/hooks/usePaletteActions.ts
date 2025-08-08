@@ -50,7 +50,7 @@ export function usePaletteActions(
           title: "Palette Deleted.",
           message: `"${paletteName}" has been deleted.`,
         });
-      } catch (error) {
+      } catch {
         showToast({
           style: Toast.Style.Failure,
           title: "Deletion Failed.",
@@ -99,7 +99,7 @@ export function usePaletteActions(
           title: "Palette Duplicated.",
           message: `"${duplicatedPalette.name}" has been created.`,
         });
-      } catch (error) {
+      } catch {
         showToast({
           style: Toast.Style.Failure,
           title: "Duplication Failed.",

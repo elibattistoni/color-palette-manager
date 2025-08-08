@@ -165,7 +165,7 @@ ${NAME_FIELD_MAXLENGTH} characters.`,
 
       // Filter for valid hex colors only
       return parsed.filter(isValidHexColor);
-    } catch (parseError) {
+    } catch {
       showToast({
         title: "The AI could not create valid colors, please try again.",
         style: Toast.Style.Failure,

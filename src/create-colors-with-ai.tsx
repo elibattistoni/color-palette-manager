@@ -1,5 +1,6 @@
 import { Action, ActionPanel, Grid, Icon, launchCommand, LaunchProps, LaunchType } from "@raycast/api";
 import { showFailureToast } from "@raycast/utils";
+import { SHORTCUTS } from "./constants";
 import { useAIcolors } from "./hooks/useAIcolors";
 import { useColorsSelection } from "./hooks/useColorsSelection";
 import { AIGeneratedText, ColorItem, UseColorsSelectionObject } from "./types";
@@ -67,14 +68,14 @@ function Actions({ colorItem, selection, AItext }: GenerateColorsActionsProps) {
         <Action
           icon={isSelected ? Icon.Checkmark : Icon.Circle}
           title={isSelected ? `Deselect Color ${formattedColor}` : `Select Color ${formattedColor}`}
-          shortcut={{ modifiers: ["cmd"], key: "s" }}
+          shortcut={SHORTCUTS.TOGGLE_SELECT_COLOR}
           onAction={() => toggleSelection(colorItem)}
         />
         {!allSelected && (
           <Action
             icon={Icon.Checkmark}
             title="Select All Colors"
-            shortcut={{ modifiers: ["cmd", "shift"], key: "a" }}
+            shortcut={SHORTCUTS.SELECT_ALL}
             onAction={selectAll}
           />
         )}
@@ -82,7 +83,7 @@ function Actions({ colorItem, selection, AItext }: GenerateColorsActionsProps) {
           <Action
             icon={Icon.XMarkCircle}
             title="Clear Selection"
-            shortcut={{ modifiers: ["cmd", "shift"], key: "z" }}
+            shortcut={SHORTCUTS.CLEAR_SELECTION}
             onAction={clearSelection}
           />
         )}
@@ -92,7 +93,7 @@ function Actions({ colorItem, selection, AItext }: GenerateColorsActionsProps) {
           <Action
             icon={Icon.AppWindowGrid3x3}
             title={`Save ${countSelected} Color${countSelected > 1 ? "s" : ""} as Palette`}
-            shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
+            shortcut={SHORTCUTS.SAVE_SELECTED}
             onAction={async () => {
               try {
                 await launchCommand({

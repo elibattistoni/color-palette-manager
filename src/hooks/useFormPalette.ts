@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { CLEAR_FORM_VALUES, MAX_COLOR_FIELDS } from "../constants";
 import { PaletteFormFields, UseFormColorsObject, UseFormPaletteObject } from "../types";
 import { formValidation } from "../utils/formValidation";
+import { isValidHexColor } from "../utils/isValidHexColor";
 import { useFormSubmission } from "./useFormSubmission";
 
 type UseFormPaletteProps = {
@@ -69,6 +70,26 @@ export function useFormPalette({ colorFields, initialValues, isEditing }: UseFor
     return colorProps;
   }, [itemProps, activeColorCount]);
 
+  // Check if all current color fields have valid colors
+  const hasEmptyColorFields = useMemo(() => {
+    return Array.from({ length: colorFields.count }, (_, index) => {
+      const colorKey = `color${index + 1}` as keyof PaletteFormFields;
+      const itemProp = itemProps[colorKey];
+      const colorValue = itemProp?.value as string;
+      return !colorValue || !isValidHexColor(colorValue);
+    }).some(Boolean);
+  }, [colorFields.count, itemProps]);
+
+  // Check if there is at least 1 valid color field
+  const hasValidColorFields = useMemo(() => {
+    return Array.from({ length: colorFields.count }, (_, index) => {
+      const colorKey = `color${index + 1}` as keyof PaletteFormFields;
+      const itemProp = itemProps[colorKey];
+      const colorValue = itemProp?.value as string;
+      return colorValue && isValidHexColor(colorValue);
+    }).some(Boolean);
+  }, [colorFields.count, itemProps]);
+
   return {
     form: {
       submit: handleSubmit,
@@ -76,6 +97,8 @@ export function useFormPalette({ colorFields, initialValues, isEditing }: UseFor
       reset,
       update: setValue,
       colors,
+      hasEmptyColorFields,
+      hasValidColorFields,
     },
   };
 }

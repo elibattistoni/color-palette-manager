@@ -1,5 +1,5 @@
 import { Action, ActionPanel, Grid, Icon } from "@raycast/api";
-import { COPY_FORMATS } from "../constants";
+import { COPY_FORMATS, SHORTCUTS } from "../constants";
 import { SavedPalette } from "../types";
 import { copyPalette } from "../utils/copyPalette";
 
@@ -22,7 +22,7 @@ export function PalettePreview({ palette }: PalettePreviewProps) {
               <ActionPanel.Submenu
                 title="Copy Palette Colors"
                 icon={Icon.CopyClipboard}
-                shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+                shortcut={SHORTCUTS.COPY_PALETTE}
               >
                 {COPY_FORMATS.map(({ format, title, icon }) => (
                   <Action.CopyToClipboard

@@ -1,4 +1,4 @@
-import { Icon } from "@raycast/api";
+import { Icon, Keyboard } from "@raycast/api";
 import { CopyPaletteFormat, PaletteFormFields } from "./types";
 
 export const DEFAULT_NAME = "";
@@ -43,3 +43,22 @@ export const COPY_FORMATS: Array<{
   { format: "css-variables", title: "Copy Colors as CSS Variables", icon: Icon.Gear },
   { format: "txt", title: "Copy Colors as Plain Text", icon: Icon.Text },
 ];
+
+/**
+ * Centralized keyboard shortcuts for all commands and actions.
+ */
+export const SHORTCUTS = {
+  PREVIEW_PALETTE: { modifiers: ["cmd", "shift"], key: "p" } as Keyboard.Shortcut,
+  ADD_COLOR_FIELD: { modifiers: ["cmd"], key: "n" } as Keyboard.Shortcut,
+  REMOVE_COLOR_FIELD: { modifiers: ["ctrl"], key: "x" } as Keyboard.Shortcut,
+  CLEAR_FORM: { modifiers: ["ctrl"], key: "r" } as Keyboard.Shortcut,
+  TOGGLE_SELECT_COLOR: { modifiers: ["cmd"], key: "s" } as Keyboard.Shortcut,
+  SELECT_ALL: { modifiers: ["cmd", "shift"], key: "a" } as Keyboard.Shortcut,
+  CLEAR_SELECTION: { modifiers: ["cmd", "shift"], key: "z" } as Keyboard.Shortcut,
+  SAVE_SELECTED: { modifiers: ["cmd", "shift"], key: "enter" } as Keyboard.Shortcut,
+  EDIT_PALETTE: { modifiers: ["cmd"], key: "e" } as Keyboard.Shortcut,
+  DUPLICATE_PALETTE: { modifiers: ["cmd"], key: "d" } as Keyboard.Shortcut,
+  COPY_COOLORS_LINK: { modifiers: ["cmd", "shift"], key: "," } as Keyboard.Shortcut,
+  DELETE_PALETTE: { modifiers: ["ctrl"], key: "x" } as Keyboard.Shortcut,
+  COPY_PALETTE: { modifiers: ["cmd", "shift"], key: "c" } as Keyboard.Shortcut,
+};

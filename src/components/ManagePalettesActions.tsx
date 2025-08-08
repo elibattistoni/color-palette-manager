@@ -1,4 +1,5 @@
 import { Action, ActionPanel, Icon, LaunchType } from "@raycast/api";
+import { SHORTCUTS } from "../constants";
 import SaveColorPaletteCommand from "../save-color-palette";
 import { ManagePaletteActions, SavedPalette } from "../types";
 import { isValidHexColor } from "../utils/isValidHexColor";
@@ -33,7 +34,7 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
         icon={Icon.Swatch}
         title="Preview Palette"
         target={<PalettePreview palette={palette} />}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
+        shortcut={SHORTCUTS.PREVIEW_PALETTE}
       />
 
       <Action.Push
@@ -46,21 +47,21 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
           />
         }
         icon={Icon.Pencil}
-        shortcut={{ modifiers: ["cmd"], key: "e" }}
+        shortcut={SHORTCUTS.EDIT_PALETTE}
       />
 
       <Action
         title="Duplicate Palette"
         onAction={() => paletteActions.duplicate(palette)}
         icon={Icon.Duplicate}
-        shortcut={{ modifiers: ["cmd"], key: "d" }}
+        shortcut={SHORTCUTS.DUPLICATE_PALETTE}
       />
 
       <Action.CopyToClipboard
         title="Copy Link to Coolors.co"
         content={coolorsUrl}
         icon={Icon.Repeat}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "," }}
+        shortcut={SHORTCUTS.COPY_COOLORS_LINK}
       />
 
       <Action
@@ -68,7 +69,7 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
         onAction={() => paletteActions.delete(palette.id, palette.name)}
         icon={Icon.Trash}
         style={Action.Style.Destructive}
-        shortcut={{ modifiers: ["ctrl"], key: "x" }}
+        shortcut={SHORTCUTS.DELETE_PALETTE}
       />
     </ActionPanel>
   );

@@ -116,7 +116,7 @@ export function useFormSubmission(): UseFormSubmissionReturn {
           type: LaunchType.UserInitiated,
         });
       }
-    } catch (error) {
+    } catch {
       // Log error for debugging while showing user-friendly message
       showToast({
         style: Toast.Style.Failure,

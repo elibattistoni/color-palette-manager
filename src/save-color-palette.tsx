@@ -14,6 +14,7 @@ import { SavePaletteFormProps } from "./types";
 /// TODO: merge functionality?
 /// TODO check npm run lint: extension icon too big?
 /// /Users/elisabattistoni/development/raycast/color-palette-manager/assets/extension-icon.png error  Wrong image size: 800 x 800 pixels. Required size is 512 x 512 pixels
+/// improvement: consider React Context Provider?
 
 export default function SaveColorPalette(props: SavePaletteFormProps) {
   const { draftValues, launchContext = {} } = props;

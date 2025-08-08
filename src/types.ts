@@ -112,4 +112,6 @@ export type UseFormPaletteObject = {
   reset: (values: PaletteFormFields) => void;
   update: <K extends keyof PaletteFormFields>(id: K, value: SetStateAction<PaletteFormFields[K]>) => void;
   colors: FormColorItems;
+  hasEmptyColorFields: boolean;
+  hasValidColorFields: boolean;
 };
