@@ -52,38 +52,18 @@ export function useFormActions({
   };
 
   /**
-   * Removes the last color field and refocuses.
-   */
-  const removeLastColor = () => {
-    if (colorFields.count > 1) {
-      // Clear the value of the last color field before removing it
-      const lastColorField = `color${colorFields.count}` as keyof PaletteFormFields;
-      form.update(lastColorField, "");
-
-      // Remove the color field from the UI
-      colorFields.removeColor();
-
-      // Focus on the new last color field after removal
-      const newLastColorField = `color${colorFields.count - 1}`;
-      focus.set(newLastColorField);
-    }
-  };
-
-  /**
    * Removes the currently focused color field based on focus.field.
+   * If no field is currently focused (e.g., Action Panel opened),
+   * uses the last focused color field as fallback.
    * Reorganizes remaining colors to fill the gap and updates focus.
    */
   const removeColor = () => {
-    /// TODO it seems to correctly work only if you do it via keyboard shortcut
-    /// because when you open the actions menu, focus.field is null
-    /// TODO should I track previouslyFocusedColorField?
+    // Get the currently focused field, with fallback to last focused color field
+    const activeField = focus.field || focus.lastColorField;
 
-    // Get the currently focused field
-    const activeField = focus.field;
-
-    // Check if the active field is a color field
+    // Check if we have a valid color field to work with
     if (!activeField || !activeField.startsWith("color")) {
-      console.warn("No color field is currently focused. Cannot remove specific color.");
+      console.warn("No color field is currently focused or was recently focused. Cannot remove specific color.");
       return;
     }
 
@@ -153,7 +133,6 @@ export function useFormActions({
     formActions: {
       clear,
       addColor,
-      removeLastColor,
       removeColor,
       updateKeywords,
       getPreview,

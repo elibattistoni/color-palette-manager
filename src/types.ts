@@ -22,7 +22,6 @@ export type UseFormKeywordsObject = {
 export type UseFormActionsObject = {
   clear: () => void;
   addColor: () => void;
-  removeLastColor: () => void;
   removeColor: () => void;
   updateKeywords: (keywordsText: string) => Promise<UpdateKeywordsPromiseResult>;
   getPreview: () => { colors: string[] };
@@ -30,6 +29,7 @@ export type UseFormActionsObject = {
 
 export type UseFormFocusObject = {
   field: string | null;
+  lastColorField: string | null;
   set: (fieldId: string | null) => void;
   create: (fieldId: string) => {
     onFocus: () => void;

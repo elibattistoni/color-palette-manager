@@ -10,7 +10,10 @@ type UseFormFocusReturn = {
  * Uses ref to avoid stale closures in event handlers.
  */
 export function useFormFocus(): UseFormFocusReturn {
+  // current focused field state
   const [focusedField, setFocusedFieldState] = useState<string | null>(null);
+  // last focused color field state (only color fields, not other form fields)
+  const [lastFocusedColorField, setLastFocusedColorField] = useState<string | null>(null);
 
   // Use ref to avoid stale closures in event handlers
   const focusedFieldRef = useRef<string | null>(null);
@@ -21,6 +24,11 @@ export function useFormFocus(): UseFormFocusReturn {
   const setFocusedField = useCallback((fieldId: string | null) => {
     setFocusedFieldState(fieldId);
     focusedFieldRef.current = fieldId;
+
+    // Track last focused color field specifically
+    if (fieldId && fieldId.startsWith("color")) {
+      setLastFocusedColorField(fieldId);
+    }
   }, []);
 
   /**
@@ -47,6 +55,7 @@ export function useFormFocus(): UseFormFocusReturn {
   return {
     focus: {
       field: focusedField,
+      lastColorField: lastFocusedColorField,
       set: setFocusedField,
       create: createFocusHandlers,
     },

@@ -1,17 +1,24 @@
 import { Action, ActionPanel, Icon } from "@raycast/api";
-import { PaletteFormFields, UseFormActionsObject } from "../types";
+import { UseFormActionsObject, UseFormColorsObject, UseFormFocusObject, UseFormPaletteObject } from "../types";
 import { FormPalettePreview } from "./FormPalettePreview";
 
 interface SavePaletteActionsProps {
-  handleSubmit: (values: PaletteFormFields) => boolean | void | Promise<boolean | void>;
+  form: UseFormPaletteObject;
   formActions: UseFormActionsObject;
-  colorCount: number;
+  colorFields: UseFormColorsObject;
+  focus: UseFormFocusObject;
 }
 
-export function SavePaletteActions({ handleSubmit, formActions, colorCount }: SavePaletteActionsProps) {
+export function SavePaletteActions({ form, formActions, colorFields, focus }: SavePaletteActionsProps) {
+  const lastFocusedColorName = focus.lastColorField
+    ? {
+        value: form.colors[focus.lastColorField]?.value || "",
+        number: focus.lastColorField.replace("color", "").trim(),
+      }
+    : undefined;
   return (
     <ActionPanel>
-      <Action.SubmitForm icon={Icon.Check} onSubmit={handleSubmit} />
+      <Action.SubmitForm icon={Icon.Check} onSubmit={form.submit} title="Save Palette" />
       <Action.Push
         icon={Icon.Swatch}
         title="Preview Palette"
@@ -24,18 +31,10 @@ export function SavePaletteActions({ handleSubmit, formActions, colorCount }: Sa
         onAction={formActions.addColor}
         shortcut={{ modifiers: ["cmd"], key: "n" }}
       />
-      {colorCount > 1 && (
+      {colorFields.count > 1 && lastFocusedColorName && (
         <Action
           icon={Icon.MinusCircle}
-          title="Remove Last Color"
-          onAction={formActions.removeLastColor}
-          shortcut={{ modifiers: ["cmd", "shift"], key: "backspace" }}
-        />
-      )}
-      {colorCount > 1 && (
-        <Action
-          icon={Icon.MinusCircle}
-          title="Remove Active Color"
+          title={`Remove Color ${lastFocusedColorName.number}${lastFocusedColorName.value ? " - " + lastFocusedColorName.value : ""}`}
           onAction={formActions.removeColor}
           shortcut={{ modifiers: ["cmd"], key: "backspace" }}
         />
