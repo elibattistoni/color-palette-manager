@@ -51,7 +51,6 @@ export function usePaletteActions(
           message: `"${paletteName}" has been deleted.`,
         });
       } catch (error) {
-        console.error("Error deleting palette:", error);
         showToast({
           style: Toast.Style.Failure,
           title: "Deletion Failed.",
@@ -101,7 +100,6 @@ export function usePaletteActions(
           message: `"${duplicatedPalette.name}" has been created.`,
         });
       } catch (error) {
-        console.error("Error duplicating palette:", error);
         showToast({
           style: Toast.Style.Failure,
           title: "Duplication Failed.",

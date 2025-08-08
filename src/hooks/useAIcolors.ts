@@ -8,6 +8,7 @@ import {
   NAME_FIELD_MAXLENGTH,
 } from "../constants";
 import { ColorItem } from "../types";
+import { isValidHexColor } from "../utils/isValidHexColor";
 
 type UseAIcolorsProps = {
   creativity: AI.Creativity;
@@ -150,16 +151,23 @@ ${NAME_FIELD_MAXLENGTH} characters.`,
     isLimitToastActive,
   ]);
 
-  // Parse colors safely
+  // Parse colors safely with validation
   const colors: string[] = useMemo(() => {
     if (!jsonColors) return [];
 
     try {
-      const parsed = JSON.parse(jsonColors) as string[];
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
+      const parsed = JSON.parse(jsonColors);
+
+      // Validate that the parsed data is an array
+      if (!Array.isArray(parsed)) {
+        return [];
+      }
+
+      // Filter for valid hex colors only
+      return parsed.filter(isValidHexColor);
+    } catch (parseError) {
       showToast({
-        title: "The AI could not create the colors, please try again.",
+        title: "The AI could not create valid colors, please try again.",
         style: Toast.Style.Failure,
       });
       return [];

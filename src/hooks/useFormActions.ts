@@ -1,3 +1,4 @@
+import { useCallback, useRef } from "react";
 import { CLEAR_FORM_VALUES } from "../constants";
 import {
   PaletteFormFields,
@@ -27,6 +28,21 @@ export function useFormActions({
   focus: UseFormFocusObject;
   keywords: UseFormKeywordsObject;
 }): UseFormActionsReturn {
+  // Track timeout references for cleanup
+  const timeoutRefs = useRef<Set<NodeJS.Timeout>>(new Set());
+
+  /**
+   * Safely sets a timeout and tracks it for cleanup
+   */
+  const setSafeTimeout = useCallback((callback: () => void, delay: number) => {
+    const timeoutId = setTimeout(() => {
+      timeoutRefs.current.delete(timeoutId);
+      callback();
+    }, delay);
+    timeoutRefs.current.add(timeoutId);
+    return timeoutId;
+  }, []);
+
   /**
    * Clears the form and resets to initial state.
    */
@@ -46,32 +62,40 @@ export function useFormActions({
     colorFields.addColor();
 
     // Focus on the newly added color field with a delay to ensure DOM is updated
-    setTimeout(() => {
+    setSafeTimeout(() => {
       focus.set(newColorFieldId);
     }, 50); // Sufficient delay for state update and DOM rendering
   };
 
   /**
-   * Removes the currently focused color field based on focus.field.
+   * Removes the currently focused color field based on focus.currentField.
    * If no field is currently focused (e.g., Action Panel opened),
-   * uses the last focused color field as fallback.
+   * uses the last focused field as fallback.
    * Reorganizes remaining colors to fill the gap and updates focus.
    */
   const removeColor = () => {
-    // Get the currently focused field, with fallback to last focused color field
-    const activeField = focus.field || focus.lastColorField;
+    // Get the currently focused field, with fallback to last focused field if it's a color field
+    const activeField = focus.currentField || focus.lastField;
 
     // Check if we have a valid color field to work with
     if (!activeField || !activeField.startsWith("color")) {
-      console.warn("No color field is currently focused or was recently focused. Cannot remove specific color.");
+      return;
+    }
+
+    // Ensure we have minimum color count
+    if (colorFields.count <= 1) {
       return;
     }
 
     // Extract the color index from the field name (e.g., "color3" -> 3)
-    const colorIndex = parseInt(activeField.replace("color", ""), 10);
+    const colorIndexMatch = activeField.match(/^color(\d+)$/);
+    if (!colorIndexMatch) {
+      return;
+    }
+
+    const colorIndex = parseInt(colorIndexMatch[1], 10);
 
     if (colorIndex < 1 || colorIndex > colorFields.count) {
-      console.warn(`Invalid color index: ${colorIndex}. Must be between 1 and ${colorFields.count}`);
       return;
     }
 
@@ -108,7 +132,7 @@ export function useFormActions({
     // Otherwise, focus on the same index (which now contains the next color)
     const newFocusIndex = Math.min(colorIndex, colorFields.count - 1);
     const newFocusField = `color${Math.max(1, newFocusIndex)}`;
-    setTimeout(() => {
+    setSafeTimeout(() => {
       focus.set(newFocusField);
     }, 50);
   };

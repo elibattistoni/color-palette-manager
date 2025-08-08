@@ -28,8 +28,8 @@ export type UseFormActionsObject = {
 };
 
 export type UseFormFocusObject = {
-  field: string | null;
-  lastColorField: string | null;
+  currentField: string | null;
+  lastField: string | null;
   set: (fieldId: string | null) => void;
   create: (fieldId: string) => {
     onFocus: () => void;
@@ -85,7 +85,6 @@ export type ManagePaletteActions = {
   delete: (paletteId: string, paletteName: string) => Promise<void>;
   createEdit: (palette: SavedPalette) => PaletteFormFields;
   duplicate: (palette: SavedPalette) => Promise<void>;
-  /// TODO merge
 };
 
 export type UseColorsSelectionObject = {

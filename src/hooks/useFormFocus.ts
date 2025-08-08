@@ -12,8 +12,8 @@ type UseFormFocusReturn = {
 export function useFormFocus(): UseFormFocusReturn {
   // current focused field state
   const [focusedField, setFocusedFieldState] = useState<string | null>(null);
-  // last focused color field state (only color fields, not other form fields)
-  const [lastFocusedColorField, setLastFocusedColorField] = useState<string | null>(null);
+  // last focused field state (tracks the previously focused field)
+  const [lastFocusedField, setLastFocusedField] = useState<string | null>(null);
 
   // Use ref to avoid stale closures in event handlers
   const focusedFieldRef = useRef<string | null>(null);
@@ -25,9 +25,9 @@ export function useFormFocus(): UseFormFocusReturn {
     setFocusedFieldState(fieldId);
     focusedFieldRef.current = fieldId;
 
-    // Track last focused color field specifically
-    if (fieldId && fieldId.startsWith("color")) {
-      setLastFocusedColorField(fieldId);
+    // Track last focused field (any field, not just colors)
+    if (fieldId) {
+      setLastFocusedField(fieldId);
     }
   }, []);
 
@@ -54,8 +54,8 @@ export function useFormFocus(): UseFormFocusReturn {
 
   return {
     focus: {
-      field: focusedField,
-      lastColorField: lastFocusedColorField,
+      currentField: focusedField,
+      lastField: lastFocusedField,
       set: setFocusedField,
       create: createFocusHandlers,
     },

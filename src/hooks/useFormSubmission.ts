@@ -118,7 +118,6 @@ export function useFormSubmission(): UseFormSubmissionReturn {
       }
     } catch (error) {
       // Log error for debugging while showing user-friendly message
-      console.error("Error saving palette:", error);
       showToast({
         style: Toast.Style.Failure,
         title: "Error.",

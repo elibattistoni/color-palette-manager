@@ -1,5 +1,6 @@
 import { Action, ActionPanel, Icon } from "@raycast/api";
 import { UseFormActionsObject, UseFormColorsObject, UseFormFocusObject, UseFormPaletteObject } from "../types";
+import { isValidHexColor } from "../utils/isValidHexColor";
 import { FormPalettePreview } from "./FormPalettePreview";
 
 interface SavePaletteActionsProps {
@@ -10,12 +11,21 @@ interface SavePaletteActionsProps {
 }
 
 export function SavePaletteActions({ form, formActions, colorFields, focus }: SavePaletteActionsProps) {
-  const lastFocusedColorName = focus.lastColorField
-    ? {
-        value: form.colors[focus.lastColorField]?.value || "",
-        number: focus.lastColorField.replace("color", "").trim(),
-      }
-    : undefined;
+  const lastFocusedColorName =
+    focus.lastField && focus.lastField?.startsWith("color")
+      ? {
+          value: form.colors[focus.lastField]?.value || "",
+          number: focus.lastField.replace("color", "").trim(),
+        }
+      : undefined;
+
+  // Check if all current color fields have valid colors
+  const hasEmptyColorFields = Array.from({ length: colorFields.count }, (_, index) => {
+    const colorKey = `color${index + 1}` as keyof typeof form.colors;
+    const colorValue = form.colors[colorKey]?.value as string;
+    return !colorValue || !isValidHexColor(colorValue);
+  }).some(Boolean);
+
   return (
     <ActionPanel>
       <Action.SubmitForm icon={Icon.Check} onSubmit={form.submit} title="Save Palette" />
@@ -23,27 +33,29 @@ export function SavePaletteActions({ form, formActions, colorFields, focus }: Sa
         icon={Icon.Swatch}
         title="Preview Palette"
         target={<FormPalettePreview colors={formActions.getPreview().colors} />}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
+        shortcut={{ modifiers: ["opt"], key: "p" }}
       />
-      <Action
-        icon={Icon.PlusCircle}
-        title="Add New Color Field"
-        onAction={formActions.addColor}
-        shortcut={{ modifiers: ["cmd"], key: "n" }}
-      />
-      {colorFields.count > 1 && lastFocusedColorName && (
+      {!hasEmptyColorFields && (
+        <Action
+          icon={Icon.PlusCircle}
+          title="Add New Color Field"
+          onAction={formActions.addColor}
+          shortcut={{ modifiers: ["opt"], key: "n" }}
+        />
+      )}
+      {colorFields.count > 1 && focus.lastField?.startsWith("color") && lastFocusedColorName && (
         <Action
           icon={Icon.MinusCircle}
           title={`Remove Color ${lastFocusedColorName.number}${lastFocusedColorName.value ? " - " + lastFocusedColorName.value : ""}`}
           onAction={formActions.removeColor}
-          shortcut={{ modifiers: ["cmd"], key: "backspace" }}
+          shortcut={{ modifiers: ["opt"], key: "x" }}
         />
       )}
       <Action
         icon={Icon.Wand}
         title="Clear Form"
         onAction={formActions.clear}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "r" }}
+        shortcut={{ modifiers: ["opt"], key: "r" }}
       />
     </ActionPanel>
   );

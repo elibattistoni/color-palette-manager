@@ -57,7 +57,7 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
       />
 
       <Action.CopyToClipboard
-        title="Copy link to coolors.co"
+        title="Copy Link to Coolors.co"
         content={coolorsUrl}
         icon={Icon.Repeat}
         shortcut={{ modifiers: ["cmd", "shift"], key: "," }}
