@@ -1,25 +1,16 @@
-import { Action, ActionPanel, Grid, Icon, useNavigation } from "@raycast/api";
+import { Grid, Icon } from "@raycast/api";
 import { isValidHexColor } from "../utils/isValidHexColor";
 
-interface ColorPalettePreviewProps {
+interface FormPalettePreviewProps {
   colors: string[];
 }
 
 // this is only a preview "read-only" component to show the colors in a grid
-export function ColorPalettePreview({ colors }: ColorPalettePreviewProps) {
-  const { pop } = useNavigation();
-
+export function FormPalettePreview({ colors }: FormPalettePreviewProps) {
   const validColors = colors.filter((color) => color && isValidHexColor(color));
 
   return (
-    <Grid
-      navigationTitle="Color Palette Preview"
-      actions={
-        <ActionPanel>
-          <Action title="Go Back to Form" icon={Icon.ArrowLeft} onAction={pop} />
-        </ActionPanel>
-      }
-    >
+    <Grid navigationTitle="Color Palette Preview">
       {validColors.length === 0 ? (
         <Grid.EmptyView
           icon={Icon.EyeDisabled}

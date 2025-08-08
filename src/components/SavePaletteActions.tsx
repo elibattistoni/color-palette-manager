@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Icon } from "@raycast/api";
 import { PaletteFormFields, UseFormActionsObject } from "../types";
-import { ColorPalettePreview } from "./ColorPalettePreview";
+import { FormPalettePreview } from "./FormPalettePreview";
 
 interface SavePaletteActionsProps {
   handleSubmit: (values: PaletteFormFields) => boolean | void | Promise<boolean | void>;
@@ -15,7 +15,7 @@ export function SavePaletteActions({ handleSubmit, formActions, colorCount }: Sa
       <Action.Push
         icon={Icon.Swatch}
         title="Preview Palette"
-        target={<ColorPalettePreview colors={formActions.getPreview().colors} />}
+        target={<FormPalettePreview colors={formActions.getPreview().colors} />}
         shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
       />
       <Action

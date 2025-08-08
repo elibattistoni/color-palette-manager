@@ -1,28 +1,15 @@
 import { Action, ActionPanel, Icon, LaunchType } from "@raycast/api";
+import { COPY_FORMATS } from "../constants";
 import SaveColorPaletteCommand from "../save-color-palette";
-import { CopyPaletteFormat, ManagePaletteActions, SavedPalette } from "../types";
+import { ManagePaletteActions, SavedPalette } from "../types";
 import { copyPalette } from "../utils/copyPalette";
 import { isValidHexColor } from "../utils/isValidHexColor";
-import { ColorPalettePreview } from "./ColorPalettePreview";
+import { PalettePreview } from "./PalettePreview";
 
 interface ManagePalettesActionsProps {
   palette: SavedPalette;
   paletteActions: ManagePaletteActions;
 }
-
-/**
- * Copy format configurations with format-specific icons.
- */
-const COPY_FORMATS: Array<{
-  format: CopyPaletteFormat;
-  title: string;
-  icon: Icon;
-}> = [
-  { format: "json", title: "Copy Colors as JSON", icon: Icon.CodeBlock },
-  { format: "css", title: "Copy Colors as CSS Classes", icon: Icon.Brush },
-  { format: "css-variables", title: "Copy Colors as CSS Variables", icon: Icon.Gear },
-  { format: "txt", title: "Copy Colors as Plain Text", icon: Icon.Text },
-];
 
 /**
  * Generates Coolors.co URL from palette colors with validation.
@@ -43,7 +30,18 @@ const generateCoolorsUrl = (colors: string[]): string => {
 export function ManagePalettesActions({ palette, paletteActions }: ManagePalettesActionsProps) {
   return (
     <ActionPanel>
-      <ActionPanel.Submenu title="Copy Palette Colors" icon={Icon.CopyClipboard}>
+      <Action.Push
+        icon={Icon.Swatch}
+        title="Preview Palette"
+        target={<PalettePreview palette={palette} />}
+        shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
+      />
+
+      <ActionPanel.Submenu
+        title="Copy Palette Colors"
+        icon={Icon.CopyClipboard}
+        shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+      >
         {COPY_FORMATS.map(({ format, title, icon }) => (
           <Action.CopyToClipboard key={format} title={title} content={copyPalette(palette, format)} icon={icon} />
         ))}
@@ -63,13 +61,6 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
         url={generateCoolorsUrl(palette.colors)}
         icon={Icon.Globe}
         shortcut={{ modifiers: ["cmd"], key: "o" }}
-      />
-
-      <Action.Push
-        icon={Icon.Swatch}
-        title="Preview Palette"
-        target={<ColorPalettePreview colors={palette.colors} />}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
       />
 
       <Action.Push
@@ -97,7 +88,7 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
         onAction={() => paletteActions.delete(palette.id, palette.name)}
         icon={Icon.Trash}
         style={Action.Style.Destructive}
-        shortcut={{ modifiers: ["cmd", "shift"], key: "backspace" }}
+        shortcut={{ modifiers: ["ctrl"], key: "x" }}
       />
     </ActionPanel>
   );

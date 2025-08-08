@@ -1,4 +1,5 @@
-import { PaletteFormFields } from "./types";
+import { Icon } from "@raycast/api";
+import { CopyPaletteFormat, PaletteFormFields } from "./types";
 
 export const DEFAULT_NAME = "";
 
@@ -28,3 +29,17 @@ export const CLEAR_FORM_VALUES: PaletteFormFields = {
   editId: DEFAULT_EDIT_ID,
   color1: DEFAULT_COLOR,
 };
+
+/**
+ * Copy format configurations with format-specific icons.
+ */
+export const COPY_FORMATS: Array<{
+  format: CopyPaletteFormat;
+  title: string;
+  icon: Icon;
+}> = [
+  { format: "json", title: "Copy Colors as JSON", icon: Icon.CodeBlock },
+  { format: "css", title: "Copy Colors as CSS Classes", icon: Icon.Brush },
+  { format: "css-variables", title: "Copy Colors as CSS Variables", icon: Icon.Gear },
+  { format: "txt", title: "Copy Colors as Plain Text", icon: Icon.Text },
+];
