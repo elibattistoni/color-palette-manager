@@ -1,14 +1,10 @@
-import { AI, showToast, Toast } from "@raycast/api";
+import { AI } from "@raycast/api";
 import { useAI } from "@raycast/utils";
 import { useEffect, useMemo, useState } from "react";
-import {
-  DEFAULT_COLOR_FIELDS,
-  DESCRIPTION_FIELD_MAXLENGTH,
-  MAX_COLOR_FIELDS,
-  NAME_FIELD_MAXLENGTH,
-} from "../constants";
+import { DEFAULT_COLOR_FIELDS, MAX_COLOR_FIELDS } from "../constants";
 import { ColorItem } from "../types";
-import { isValidHexColor } from "../utils/isValidHexColor";
+import { createColorItems, parseAIColors } from "../utils/aiColorProcessing";
+import { composeColorPrompt, composeDescriptionPrompt, composeTitlePrompt } from "../utils/aiPrompts";
 
 type UseAIcolorsProps = {
   creativity: AI.Creativity;
@@ -22,168 +18,99 @@ type UseAIcolorsReturn = {
   title: string;
   description: string;
   error: string | null;
+  isLoadingMessage: string | null;
 };
 
-export function useAIcolors({ creativity, totalColors, prompt }: UseAIcolorsProps): UseAIcolorsReturn {
-  const [parsedTotalColors, setParsedTotalColors] = useState<number>(DEFAULT_COLOR_FIELDS);
-  const [hasShownLimitToast, setHasShownLimitToast] = useState(false);
-  const [isLimitToastActive, setIsLimitToastActive] = useState(false);
+export function useAIcolors({
+  creativity: requestedCreativity,
+  totalColors: requestedTotalColors,
+  prompt,
+}: UseAIcolorsProps): UseAIcolorsReturn {
   const [error, setError] = useState<string | null>(null);
+  const [isLoadingMessage, setIsLoadingMessage] = useState<string | null>(null);
 
-  const parsedCreativity = creativity && String(creativity).trim() !== "" ? creativity : "medium";
-
-  // Parse and validate totalColors with MAX_COLOR_FIELDS limit
+  // Parse and validate color count with limit handling
+  const [colorCount, setColorCount] = useState<number>(DEFAULT_COLOR_FIELDS);
   useEffect(() => {
-    const requestedColors = parseInt(
-      totalColors && totalColors.trim() !== "" ? totalColors : String(MAX_COLOR_FIELDS),
-      10,
-    );
+    // Extract only digits from the input string
+    const digitsOnly = requestedTotalColors?.replace(/\D/g, "") || "";
+    const requestedColors = parseInt(digitsOnly !== "" ? digitsOnly : String(DEFAULT_COLOR_FIELDS), 10);
+    setColorCount(Math.min(requestedColors, MAX_COLOR_FIELDS));
+  }, [requestedTotalColors]);
 
-    const finalColors = Math.min(requestedColors, MAX_COLOR_FIELDS);
-    setParsedTotalColors(finalColors);
+  // Parse creativity with fallback
+  const parsedCreativity =
+    requestedCreativity && String(requestedCreativity).trim() !== "" ? requestedCreativity : "medium";
 
-    if (requestedColors > MAX_COLOR_FIELDS && !hasShownLimitToast) {
-      setIsLimitToastActive(true);
-      showToast({
-        title: `Max ${MAX_COLOR_FIELDS} colors allowed.`,
-        message: `Creating ${MAX_COLOR_FIELDS} colors instead.`,
-        style: Toast.Style.Animated,
-      });
-      setHasShownLimitToast(true);
+  // AI calls for colors, description, and title
 
-      // Keep the limit toast active for 5 seconds before allowing other toasts
-      setTimeout(() => {
-        setIsLimitToastActive(false);
-      }, 5000);
-    }
-  }, [totalColors, hasShownLimitToast]);
+  const modelConfig = {
+    model: AI.Model.OpenAI_GPT4o,
+    stream: false,
+    creativity: parsedCreativity,
+  };
+
+  const creativity = String(parsedCreativity);
 
   const {
     data: jsonColors,
     isLoading: isLoadingJsonColors,
     error: jsonColorsError,
-  } = useAI(
-    `Generate ${parsedTotalColors} colors based on the input prompt.
-Return valid HEX colors in a JSON array format, such as ["#66D3BB","#7EDDC6","#96E7D1","#AEEFDB","#C6F9E6"].
-Do not include any other text or formatting, just the JSON array of colors.
-If you cannot generate colors, return an empty JSON array [].
-
-Prompt: ${prompt}
-
-Creativity: ${parsedCreativity}
-
-JSON colors:`,
-    {
-      model: AI.Model.OpenAI_GPT4o,
-      stream: false,
-      creativity: parsedCreativity,
-    },
-  );
+  } = useAI(composeColorPrompt({ prompt, colorCount, creativity }), modelConfig);
 
   const {
     data: description,
     isLoading: isLoadingDescription,
     error: descriptionError,
-  } = useAI(
-    `Generate a description for the set of created colors, considering the input prompt ${prompt}.
-Importantly, the description must be clear, concise and have a maximum length of 
-${DESCRIPTION_FIELD_MAXLENGTH} characters.`,
-    { model: AI.Model.OpenAI_GPT4o, stream: false, creativity: "medium" },
-  );
+  } = useAI(composeDescriptionPrompt({ prompt, creativity }), modelConfig);
 
   const {
     data: title,
     isLoading: isLoadingTitle,
     error: titleError,
-  } = useAI(
-    `Generate a title for the set of created colors, considering the input prompt ${prompt},
-and the description you just created (${description}).
-Importantly, the title must be clear, concise and have a maximum length of 
-${NAME_FIELD_MAXLENGTH} characters.`,
-    { model: AI.Model.OpenAI_GPT4o, stream: false, creativity: "medium" },
-  );
+  } = useAI(composeTitlePrompt({ prompt, description, creativity }), modelConfig);
 
   const isLoading = isLoadingJsonColors || isLoadingDescription || isLoadingTitle;
 
-  // Handle errors - only show if limit toast is not active
+  // Set error state if any AI call fails
   useEffect(() => {
-    if ((jsonColorsError || descriptionError || titleError) && !isLimitToastActive) {
-      const errorMessage = "Failed to generate colors. Please try again.";
-      setError(String(jsonColorsError || descriptionError || titleError) || errorMessage);
-      showToast({
-        title: "Color Creation Failed",
-        style: Toast.Style.Failure,
-      });
+    if (jsonColorsError) {
+      setError("Failed to create colors. Please try again.");
+    } else if (descriptionError) {
+      setError("Failed to create description. Please try again.");
+    } else if (titleError) {
+      setError("Failed to create title. Please try again.");
+    } else {
+      setError(null);
     }
-  }, [jsonColorsError, descriptionError, titleError, isLimitToastActive]);
+  }, [jsonColorsError, descriptionError, titleError]);
 
-  // Show loading/success toast - only if limit toast is not active
   useEffect(() => {
-    if (isLimitToastActive) return; // Don't show other toasts while limit toast is active
-
-    if (isLoading) {
-      const loadingMessages = [];
-      if (isLoadingJsonColors) loadingMessages.push("colors");
-      if (isLoadingDescription) loadingMessages.push("description");
-      if (isLoadingTitle) loadingMessages.push("title");
-
-      if (loadingMessages.length > 0) {
-        showToast({
-          title: `Generating ${loadingMessages.join(", ")}...`,
-          style: Toast.Style.Animated,
-        });
-      }
-    } else if (!error && !isLoading && (jsonColors || description || title)) {
-      showToast({
-        title: "Colors generated successfully!",
-        style: Toast.Style.Success,
-      });
+    if (isLoadingJsonColors) {
+      setIsLoadingMessage("Loading colors...");
+    } else if (isLoadingDescription) {
+      setIsLoadingMessage("Loading description...");
+    } else if (isLoadingTitle) {
+      setIsLoadingMessage("Loading title...");
+    } else {
+      setIsLoadingMessage(null);
     }
-  }, [
-    isLoading,
-    error,
-    !!jsonColors,
-    !!description,
-    !!title,
-    isLoadingJsonColors,
-    isLoadingDescription,
-    isLoadingTitle,
-    isLimitToastActive,
-  ]);
+  }, [isLoadingJsonColors, isLoadingDescription, isLoadingTitle]);
 
   // Parse colors safely with validation
   const colors: string[] = useMemo(() => {
-    if (!jsonColors) return [];
-
-    try {
-      const parsed = JSON.parse(jsonColors);
-
-      // Validate that the parsed data is an array
-      if (!Array.isArray(parsed)) {
-        return [];
-      }
-
-      // Filter for valid hex colors only
-      return parsed.filter(isValidHexColor);
-    } catch {
-      showToast({
-        title: "The AI could not create valid colors, please try again.",
-        style: Toast.Style.Failure,
-      });
-      return [];
-    }
+    const parsedColors = parseAIColors(jsonColors || "");
+    return parsedColors;
   }, [jsonColors]);
 
-  // Memoize ColorItems creation to avoid recreation on every render
+  // Convert colors to ColorItems
   const colorItems: ColorItem[] = useMemo(() => {
-    return colors.map((color, index) => ({
-      id: index.toString(),
-      color,
-    }));
+    return createColorItems(colors);
   }, [colors]);
 
   return {
     isLoading,
+    isLoadingMessage,
     colorItems,
     title: title || "",
     description: description || "",

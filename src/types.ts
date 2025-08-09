@@ -46,14 +46,14 @@ export type PaletteFormFields = {
   [key: `color${number}`]: string;
 };
 
-export type AIGeneratedText = {
+export type AICreatedText = {
   title: string;
   description: string;
 };
 
 export type AILaunchContext = {
   selectedColors?: ColorItem[];
-  AItext?: AIGeneratedText;
+  AItext?: AICreatedText;
 };
 
 export interface SavePaletteFormProps extends LaunchProps {
