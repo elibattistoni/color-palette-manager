@@ -32,6 +32,9 @@ export function composeDescriptionPrompt({ prompt, creativity }: { prompt: strin
 Importantly, the description must be clear, concise and have a maximum length of 
 ${DESCRIPTION_FIELD_MAXLENGTH} characters.
 
+Return only the plain text description without any quotes, quotation marks, or special formatting.
+Do not wrap the response in quotes or add any punctuation marks around it.
+
 Prompt: ${prompt}
 
 Creativity: ${creativity}
@@ -54,6 +57,9 @@ export function composeTitlePrompt({
 Also, consider the description you just created.
 Importantly, the title must be clear, concise and have a maximum length of 
 ${NAME_FIELD_MAXLENGTH} characters.
+
+Return only the plain text title without any quotes, quotation marks, or special formatting.
+Do not wrap the response in quotes or add any punctuation marks around it.
 
 Prompt: ${prompt}
 
