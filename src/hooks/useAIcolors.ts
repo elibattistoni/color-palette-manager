@@ -1,4 +1,4 @@
-import { AI } from "@raycast/api";
+import { AI, showToast, Toast } from "@raycast/api";
 import { useAI } from "@raycast/utils";
 import { useEffect, useMemo, useState } from "react";
 import { DEFAULT_COLOR_FIELDS, MAX_COLOR_FIELDS } from "../constants";
@@ -18,7 +18,6 @@ type UseAIcolorsReturn = {
   title: string;
   description: string;
   error: string | null;
-  isLoadingMessage: string | null;
 };
 
 export function useAIcolors({
@@ -27,6 +26,7 @@ export function useAIcolors({
   prompt,
 }: UseAIcolorsProps): UseAIcolorsReturn {
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isLoadingMessage, setIsLoadingMessage] = useState<string | null>(null);
 
   // Parse and validate color count with limit handling
@@ -70,8 +70,6 @@ export function useAIcolors({
     error: titleError,
   } = useAI(composeTitlePrompt({ prompt, description, creativity }), modelConfig);
 
-  const isLoading = isLoadingJsonColors || isLoadingDescription || isLoadingTitle;
-
   // Set error state if any AI call fails
   useEffect(() => {
     if (jsonColorsError) {
@@ -95,7 +93,18 @@ export function useAIcolors({
     } else {
       setIsLoadingMessage(null);
     }
+
+    if (!isLoadingJsonColors && !isLoadingDescription && !isLoadingTitle) {
+      setIsLoading(false);
+    }
   }, [isLoadingJsonColors, isLoadingDescription, isLoadingTitle]);
+
+  useEffect(() => {
+    showToast({
+      style: isLoading ? Toast.Style.Animated : error ? Toast.Style.Failure : Toast.Style.Success,
+      title: isLoading ? isLoadingMessage || "" : error ? error : `${colorCount} Colors created successfully!`,
+    });
+  }, [isLoading, isLoadingMessage, error]);
 
   // Parse colors safely with validation
   const colors: string[] = useMemo(() => {
@@ -110,7 +119,6 @@ export function useAIcolors({
 
   return {
     isLoading,
-    isLoadingMessage,
     colorItems,
     title: title || "",
     description: description || "",
