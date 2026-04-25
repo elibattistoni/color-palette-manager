@@ -64,7 +64,4 @@ export const SHORTCUTS = {
   COPY_COOLORS_LINK: { modifiers: ["cmd", "shift"], key: "," } as Keyboard.Shortcut,
   DELETE_PALETTE: { modifiers: ["ctrl"], key: "x" } as Keyboard.Shortcut,
   COPY_PALETTE: { modifiers: ["cmd", "shift"], key: "c" } as Keyboard.Shortcut,
-  // todo to implement for merge functionality
-  TOGGLE_SELECT_PALETTE: { modifiers: ["cmd"], key: "s" } as Keyboard.Shortcut,
-  MERGE_PALETTES: { modifiers: ["cmd", "shift"], key: "m" } as Keyboard.Shortcut,
 };

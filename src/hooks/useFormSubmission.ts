@@ -1,5 +1,6 @@
-import { launchCommand, LaunchType, popToRoot, showToast, Toast } from "@raycast/api";
+import { launchCommand, LaunchType, showToast, Toast, useNavigation } from "@raycast/api";
 import { useLocalStorage } from "@raycast/utils";
+import { randomUUID } from "node:crypto";
 import { PaletteFormFields, SavedPalette } from "../types";
 import { extractColorValues } from "../utils/extractColorValues";
 
@@ -16,6 +17,8 @@ type UseFormSubmissionReturn = {
  * Manages both new palette creation and existing palette updates with proper error handling.
  */
 export function useFormSubmission(): UseFormSubmissionReturn {
+  const { pop } = useNavigation();
+
   // Access local storage "color-palettes-list", shared across the extension
   const { value: storedPalettes, setValue: setStoredPalettes } = useLocalStorage<SavedPalette[]>(
     "color-palettes-list",
@@ -49,8 +52,8 @@ export function useFormSubmission(): UseFormSubmissionReturn {
         if (!existingPalette) {
           showToast({
             style: Toast.Style.Failure,
-            title: "Error.",
-            message: "Palette not found. It may have been deleted.",
+            title: "Palette Not Found",
+            message: "It may have been deleted.",
           });
           return;
         }
@@ -72,20 +75,19 @@ export function useFormSubmission(): UseFormSubmissionReturn {
 
         await setStoredPalettes(updatedPalettes);
 
-        // Provide specific success feedback for edits
         showToast({
           style: Toast.Style.Success,
-          title: `${formValues.name} palette updated.`,
-          message: `You can now view it in the list`,
+          title: "Palette Updated",
+          message: formValues.name,
         });
 
-        // For editing: Return to main Raycast interface
-        await popToRoot();
+        // For editing: pop back to Manage Color Palettes (the view that pushed this form)
+        pop();
         return;
       } else {
         // CREATE NEW PALETTE
         const palette: SavedPalette = {
-          id: Date.now().toString(),
+          id: randomUUID(),
           name: formValues.name,
           description: formValues.description,
           mode: formValues.mode as "light" | "dark",
@@ -98,30 +100,28 @@ export function useFormSubmission(): UseFormSubmissionReturn {
         const updatedPalettes = [palette, ...(storedPalettes ?? [])];
         await setStoredPalettes(updatedPalettes);
 
-        // Provide detailed success feedback to user
         showToast({
           style: Toast.Style.Success,
-          title: "Success!",
-          message: `${formValues.name} palette created.`,
+          title: "Palette Saved",
+          message: formValues.name,
         });
       }
 
       // For creating new palettes: Cleanup form first
       onSubmit();
 
-      // Navigate to view-palettes only if not in nested context (to prevent "Command cannot launch itself" error)
       if (!isNestedContext) {
         await launchCommand({
           name: "manage-color-palettes",
           type: LaunchType.UserInitiated,
         });
       }
-    } catch {
-      // Log error for debugging while showing user-friendly message
+    } catch (err) {
+      console.error("submitPalette failed", err);
       showToast({
         style: Toast.Style.Failure,
-        title: "Error.",
-        message: "Failed to save color palette",
+        title: "Save Failed",
+        message: "Could not save the color palette.",
       });
     }
   };

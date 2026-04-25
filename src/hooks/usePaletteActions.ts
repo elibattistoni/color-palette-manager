@@ -1,4 +1,5 @@
 import { confirmAlert, showToast, Toast } from "@raycast/api";
+import { randomUUID } from "node:crypto";
 import { useCallback } from "react";
 import { ManagePaletteActions, PaletteFormFields, SavedPalette } from "../types";
 
@@ -82,12 +83,11 @@ export function usePaletteActions(
   const duplicate = useCallback(
     async (palette: SavedPalette) => {
       try {
-        // Create a new palette with a unique ID and modified name
         const duplicatedPalette: SavedPalette = {
           ...palette,
-          id: Date.now().toString(), // Generate new unique ID
-          name: `${palette.name} Copy`, // Add "Copy" suffix to distinguish
-          createdAt: new Date().toISOString(), // Set new creation date
+          id: randomUUID(),
+          name: `${palette.name} Copy`,
+          createdAt: new Date().toISOString(),
         };
 
         // Add the duplicated palette to the list

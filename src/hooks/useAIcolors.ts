@@ -104,7 +104,7 @@ export function useAIcolors({
       style: isLoading ? Toast.Style.Animated : error ? Toast.Style.Failure : Toast.Style.Success,
       title: isLoading ? isLoadingMessage || "" : error ? error : `${colorCount} Colors created successfully!`,
     });
-  }, [isLoading, isLoadingMessage, error]);
+  }, [isLoading, isLoadingMessage, error, colorCount]);
 
   // Parse colors safely with validation
   const colors: string[] = useMemo(() => {

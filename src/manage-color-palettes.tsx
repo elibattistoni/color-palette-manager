@@ -27,8 +27,7 @@ export default function ManageColorPalettes() {
       isLoading={isLoading}
       filtering={false}
       onSearchTextChange={setSearchText}
-      navigationTitle="Search Color Palettes"
-      searchBarPlaceholder="Search your Color Palette..."
+      searchBarPlaceholder="Search your color palettes..."
       isShowingDetail={true}
     >
       {filteredPalettes.length === 0 ? (

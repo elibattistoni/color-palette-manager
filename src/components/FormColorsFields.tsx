@@ -3,6 +3,8 @@ import { useEffect, useRef } from "react";
 import { MAX_COLOR_FIELDS } from "../constants";
 import { FormColorItems, PaletteFormFields } from "../types";
 
+type FormItemRef = Form.ItemReference | null;
+
 interface FormColorsFieldsProps {
   data: {
     /** Number of color fields to render */
@@ -23,20 +25,12 @@ interface FormColorsFieldsProps {
 }
 
 export function FormColorsFields({ data, form, focus }: FormColorsFieldsProps) {
-  const fieldRefs = useRef<Record<string, unknown>>({});
+  const fieldRefs = useRef<Record<string, FormItemRef>>({});
 
   // Programmatically focus color fields when they're added
   useEffect(() => {
     if (focus.currentField && focus.currentField.startsWith("color")) {
-      const fieldElement = fieldRefs.current[focus.currentField];
-      if (
-        fieldElement &&
-        typeof fieldElement === "object" &&
-        "focus" in fieldElement &&
-        typeof fieldElement.focus === "function"
-      ) {
-        fieldElement.focus();
-      }
+      fieldRefs.current[focus.currentField]?.focus();
     }
   }, [focus.currentField]);
 
@@ -52,7 +46,7 @@ export function FormColorsFields({ data, form, focus }: FormColorsFieldsProps) {
           <Form.TextField
             key={index}
             {...(form.colors[colorKey] as Partial<Form.ItemProps<string>> & { id: string })}
-            ref={(el: unknown) => {
+            ref={(el: FormItemRef) => {
               fieldRefs.current[colorKey] = el;
             }}
             title={`${index + 1}. Color${isFirstColor ? "*" : ""}`}
