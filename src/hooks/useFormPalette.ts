@@ -2,7 +2,7 @@ import { Form } from "@raycast/api";
 import { useForm } from "@raycast/utils";
 import { useMemo } from "react";
 import { CLEAR_FORM_VALUES, MAX_COLOR_FIELDS } from "../constants";
-import { PaletteFormFields, UseFormColorsObject, UseFormPaletteObject } from "../types";
+import { PaletteFormFields, SavedPalette, UseFormColorsObject, UseFormPaletteObject } from "../types";
 import { formValidation } from "../utils/formValidation";
 import { isValidHexColor } from "../utils/isValidHexColor";
 import { useFormSubmission } from "./useFormSubmission";
@@ -11,13 +11,19 @@ type UseFormPaletteProps = {
   colorFields: UseFormColorsObject;
   initialValues: PaletteFormFields;
   isEditing: boolean;
+  onPaletteUpdated?: (palettes: SavedPalette[]) => Promise<void> | void;
 };
 
 type UseFormPaletteReturn = {
   form: UseFormPaletteObject;
 };
 
-export function useFormPalette({ colorFields, initialValues, isEditing }: UseFormPaletteProps): UseFormPaletteReturn {
+export function useFormPalette({
+  colorFields,
+  initialValues,
+  isEditing,
+  onPaletteUpdated,
+}: UseFormPaletteProps): UseFormPaletteReturn {
   const { submitPalette } = useFormSubmission();
 
   // Pre-define all possible color fields (up to MAX_COLOR_FIELDS) for useForm
@@ -48,6 +54,7 @@ export function useFormPalette({ colorFields, initialValues, isEditing }: UseFor
           reset(CLEAR_FORM_VALUES);
         },
         isNestedContext: isEditing,
+        onPaletteUpdated,
       });
     },
   });

@@ -59,6 +59,8 @@ export type AILaunchContext = {
 export interface SavePaletteFormProps extends LaunchProps {
   launchContext?: AILaunchContext;
   draftValues?: PaletteFormFields;
+  /** Called after an edit submit. Lets the parent (Manage Color Palettes) sync its in-memory state. */
+  onPaletteUpdated?: (palettes: SavedPalette[]) => Promise<void> | void;
 }
 
 export type SavedPalette = {

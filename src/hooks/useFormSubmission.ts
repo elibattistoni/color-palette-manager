@@ -10,8 +10,10 @@ type UseFormSubmissionReturn = {
     colorCount: number;
     onSubmit: () => void;
     isNestedContext?: boolean;
+    onPaletteUpdated?: (palettes: SavedPalette[]) => Promise<void> | void;
   }) => Promise<void>;
 };
+
 /**
  * Custom hook for handling palette creation and editing with storage management.
  * Manages both new palette creation and existing palette updates with proper error handling.
@@ -34,11 +36,13 @@ export function useFormSubmission(): UseFormSubmissionReturn {
     colorCount,
     onSubmit,
     isNestedContext = false,
+    onPaletteUpdated,
   }: {
     formValues: PaletteFormFields;
     colorCount: number;
     onSubmit: () => void;
     isNestedContext?: boolean;
+    onPaletteUpdated?: (palettes: SavedPalette[]) => Promise<void> | void;
   }) => {
     try {
       // Extract color values from form data
@@ -75,13 +79,19 @@ export function useFormSubmission(): UseFormSubmissionReturn {
 
         await setStoredPalettes(updatedPalettes);
 
+        // Sync the parent (Manage Color Palettes) so its in-memory list reflects
+        // the change immediately — useLocalStorage instances do not subscribe
+        // across views, so without this the popped-to view would be stale.
+        if (onPaletteUpdated) {
+          await onPaletteUpdated(updatedPalettes);
+        }
+
         showToast({
           style: Toast.Style.Success,
           title: "Palette Updated",
           message: formValues.name,
         });
 
-        // For editing: pop back to Manage Color Palettes (the view that pushed this form)
         pop();
         return;
       } else {
@@ -111,10 +121,14 @@ export function useFormSubmission(): UseFormSubmissionReturn {
       onSubmit();
 
       if (!isNestedContext) {
-        await launchCommand({
-          name: "manage-color-palettes",
-          type: LaunchType.UserInitiated,
-        });
+        try {
+          await launchCommand({
+            name: "manage-color-palettes",
+            type: LaunchType.UserInitiated,
+          });
+        } catch (navErr) {
+          console.warn("navigation to Manage Color Palettes failed", navErr);
+        }
       }
     } catch (err) {
       console.error("submitPalette failed", err);

@@ -72,7 +72,13 @@ export default function ManageColorPalettes() {
                 }
               />
             }
-            actions={<ManagePalettesActions palette={palette} paletteActions={paletteActions} />}
+            actions={
+              <ManagePalettesActions
+                palette={palette}
+                paletteActions={paletteActions}
+                onPaletteUpdated={setColorPalettes}
+              />
+            }
           />
         ))
       )}

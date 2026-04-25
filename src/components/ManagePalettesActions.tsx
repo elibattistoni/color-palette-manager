@@ -8,6 +8,8 @@ import { PalettePreview } from "./PalettePreview";
 interface ManagePalettesActionsProps {
   palette: SavedPalette;
   paletteActions: ManagePaletteActions;
+  /** Setter from Manage Color Palettes' useLocalStorage instance, used to keep its in-memory state in sync after an edit. */
+  onPaletteUpdated: (palettes: SavedPalette[]) => Promise<void>;
 }
 
 /**
@@ -26,7 +28,7 @@ const generateCoolorsUrl = (colors: string[]): string => {
   }
 };
 
-export function ManagePalettesActions({ palette, paletteActions }: ManagePalettesActionsProps) {
+export function ManagePalettesActions({ palette, paletteActions, onPaletteUpdated }: ManagePalettesActionsProps) {
   const coolorsUrl = generateCoolorsUrl(palette.colors);
   return (
     <ActionPanel>
@@ -44,6 +46,7 @@ export function ManagePalettesActions({ palette, paletteActions }: ManagePalette
             launchType={LaunchType.UserInitiated}
             arguments={{}}
             draftValues={paletteActions.createEdit(palette)}
+            onPaletteUpdated={onPaletteUpdated}
           />
         }
         icon={Icon.Pencil}

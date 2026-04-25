@@ -1,5 +1,5 @@
 import { Action, ActionPanel, Icon } from "@raycast/api";
-import { SHORTCUTS } from "../constants";
+import { MAX_COLOR_FIELDS, SHORTCUTS } from "../constants";
 import { UseFormActionsObject, UseFormColorsObject, UseFormFocusObject, UseFormPaletteObject } from "../types";
 import { FormPalettePreview } from "./FormPalettePreview";
 
@@ -30,7 +30,7 @@ export function SavePaletteActions({ form, formActions, colorFields, focus }: Sa
           shortcut={SHORTCUTS.PREVIEW_PALETTE}
         />
       )}
-      {!form.hasEmptyColorFields && (
+      {form.hasValidColorFields && colorFields.count < MAX_COLOR_FIELDS && (
         <Action
           icon={Icon.PlusCircle}
           title="Add New Empty Color Field"

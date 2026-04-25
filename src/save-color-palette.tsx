@@ -12,7 +12,7 @@ import { useFormSetup } from "./hooks/useFormSetup";
 import { SavePaletteFormProps } from "./types";
 
 export default function SaveColorPalette(props: SavePaletteFormProps) {
-  const { draftValues, launchContext = {} } = props;
+  const { draftValues, launchContext = {}, onPaletteUpdated } = props;
 
   // Check if we're in editing mode (nested context)
   const isEditing = Boolean(draftValues?.editId);
@@ -21,7 +21,7 @@ export default function SaveColorPalette(props: SavePaletteFormProps) {
   const { colorFields } = useFormColors(initialValues);
   const { keywords } = useFormKeywords(initialValues);
   const { focus } = useFormFocus();
-  const { form } = useFormPalette({ colorFields, initialValues, isEditing });
+  const { form } = useFormPalette({ colorFields, initialValues, isEditing, onPaletteUpdated });
   const { formActions } = useFormActions({
     colorFields,
     form,
